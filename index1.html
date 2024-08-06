@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthTwin - Revolutionary Digital Health Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #00ffaa;
+            --secondary-color: #0a0a2a;
+            --text-color: #ffffff;
+            --background-color: #050510;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .preloader-content {
+            text-align: center;
+        }
+
+        .preloader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--primary-color);
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        header {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        header.scrolled {
+            background-color: rgba(5, 5, 16, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 50px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 255, 170, 0.3);
+        }
+
+        .features {
+            padding: 8rem 0;
+        }
+
+        .features h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .feature-card {
+            background-color: var(--secondary-color);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--primary-color), transparent 30%);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .feature-card-content {
+            background-color: var(--secondary-color);
+            border-radius: 18px;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .feature-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .demo {
+            padding: 8rem 0;
+            background-color: var(--secondary-color);
+        }
+
+        .demo h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .demo-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4rem;
+        }
+
+        .demo-text {
+            flex: 1;
+        }
+
+        .demo-text h3 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .demo-text p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .demo-visual {
+            flex: 1;
+            position: relative;
+        }
+
+        #demoCanvas {
+            width: 100%;
+            height: 400px;
+            border-radius: 20px;
+        }
+
+        .statistics {
+            padding: 8rem 0;
+        }
+
+        .statistics h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .statistics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .statistic-card {
+            background-color: var(--secondary-color);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .statistic-card h3 {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .statistic-card p {
+            font-size: 1.1rem;
+        }
+
+        .ai-chatbot {
+            padding: 8rem 0;
+            background-color: var(--secondary-color);
+        }
+
+        .ai-chatbot h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .chatbot-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--background-color);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 1rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 20px;
+            margin-right: 0.5rem;
+        }
+
+        .chat-input button {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+
+        .testimonials {
+            padding: 8rem 0;
+        }
+
+        .testimonials h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .testimonial-slider {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .testimonial-slide {
+            background-color: var(--secondary-color);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .testimonial-slide img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-slide p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-slide h4 {
+            color: var(--primary-color);
+        }
+
+        .health-timeline {
+            padding: 8rem 0;
+            background-color: var(--secondary-color);
+        }
+
+        .health-timeline h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .timeline-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .timeline-item {
+            padding: 2rem;
+            background-color: var(--background-color);
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background-color: var(--primary-color);
+            left: -1rem;
+            top: 0;
+        }
+
+        .timeline-item h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .vr-demo {
+            padding: 8rem 0;
+        }
+
+        .vr-demo h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .vr-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--secondary-color);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .vr-placeholder {
+            width: 100%;
+            height: 400px;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .health-challenge {
+            padding: 8rem 0;
+            background-color: var(--secondary-color);
+        }
+
+        .health-challenge h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .challenge-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--background-color);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .challenge-progress {
+            width: 100%;
+            height: 20px;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .challenge-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        footer {
+            background-color: var(--secondary-color);
+            padding: 4rem 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons a {
+            color: var(--text-color);
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .demo-content {
+                flex-direction: column;
+            }
+
+            .statistics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chatbot-container {
+                max-width: 100%;
+            }
+
+            .testimonial-slider {
+                max-width: 100%;
+            }
+
+            .vr-container {
+                max-width: 100%;
+            }
+
+            .challenge-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="preloader">
+        <div class="preloader-content">
+            <div class="preloader-spinner"></div>
+            <p>Loading HealthTwin...</p>
+        </div>
+    </div>
+
+    <header>
+        <nav class="container">
+            <div class="logo">HealthTwin</div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#demo">Demo</a>
+                <a href="#statistics">Statistics</a>
+                <a href="#ai-chatbot">AI Chatbot</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="#vr-demo">VR Demo</a>
+                <a href="#health-challenge">Health Challenge</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content container">
+                <h1>Revolutionary Digital Health Twin</h1>
+                <p>Experience the future of personalized healthcare with AI-powered insights and real-time health simulations.</p>
+                <a href="#" class="cta-button">Get Started</a>
+            </div>
+            <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_uwR49r.json" background="transparent" speed="1" style="width: 100%; height: 100%;" loop autoplay></lottie-player>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Advanced Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-content">
+                            <h3>AI-Powered Health Analysis</h3>
+                            <p>Leverage cutting-edge artificial intelligence to analyze your health data and predict potential issues.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-content">
+                            <h3>Real-Time Health Simulation</h3>
+                            <p>Visualize and interact with your digital twin in real-time, exploring various health scenarios.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-content">
+                            <h3>Personalized Treatment Plans</h3>
+                            <p>Receive tailored treatment recommendations based on your unique health profile and goals.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card-content">
+                            <h3>Secure Data Integration</h3>
+                            <p>Safely connect and analyze data from various sources, including wearables and medical records.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="demo" class="demo">
+            <div class="container">
+                <h2>Interactive 3D Health Model</h2>
+                <div class="demo-content">
+                    <div class="demo-text">
+                        <h3>Explore Your Digital Twin</h3>
+                        <p>Interact with a 3D representation of your health data. Visualize the impact of lifestyle changes and medical interventions on your well-being.</p>
+                        <a href="#" class="cta-button">Try Demo</a>
+                    </div>
+                    <div class="demo-visual">
+                        <canvas id="demoCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="statistics" class="statistics">
+            <div class="container">
+                <h2>HealthTwin Impact</h2>
+                <div class="statistics-grid">
+                    <div class="statistic-card">
+                        <h3 id="usersCount">0</h3>
+                        <p>Active Users</p>
+                    </div>
+                    <div class="statistic-card">
+                        <h3 id="healthImprovementPercentage">0%</h3>
+                        <p>Health Improvement</p>
+                    </div>
+                    <div class="statistic-card">
+                        <h3 id="accuracyPercentage">0%</h3>
+                        <p>Prediction Accuracy</p>
+                    </div>
+                    <div class="statistic-card">
+                        <h3 id="dataPointsCount">0</h3>
+                        <p>Data Points Analyzed</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ai-chatbot" class="ai-chatbot">
+            <div class="container">
+                <h2>AI Health Assistant</h2>
+                <div class="chatbot-container">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="userInput" placeholder="Ask about your health...">
+                        <button onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="testimonials">
+            <div class="container">
+                <h2>Success Stories</h2>
+                <div class="testimonial-slider">
+                    <div class="testimonial-slide">
+                        <img src="happy-smiling-young-man-avatar-3d-portrait-of-a-man-cartoon-character-people-illustration-isolated-on-white-background-vector.jpg" alt="User Avatar">
+                        <p>"HealthTwin has completely transformed my approach to health. The personalized insights have helped me make informed decisions about my lifestyle."</p>
+                        <h4>SRIDHAR</h4>
+                    </div>
+                    <!-- Add more testimonial slides here -->
+                </div>
+            </div>
+        </section>
+
+        <section id="health-timeline" class="health-timeline">
+            <div class="container">
+                <h2>Your Health Journey</h2>
+                <div class="timeline-container">
+                    <div class="timeline-item">
+                        <h3>Started HealthTwin</h3>
+                        <p>Began tracking health data and receiving personalized insights.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>Fitness Milestone</h3>
+                        <p>Achieved a 20% improvement in cardiovascular health.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>Nutrition Optimization</h3>
+                        <p>Personalized diet plan resulted in improved energy levels and weight management.</p>
+                    </div>
+                    <!-- Add more timeline items here -->
+                </div>
+            </div>
+        </section>
+
+        <section id="vr-demo" class="vr-demo">
+            <div class="container">
+                <h2>Virtual Reality Health Experience</h2>
+                <div class="vr-container">
+                    <div class="vr-placeholder">
+                        VR Demo Placeholder
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="health-challenge" class="health-challenge">
+            <div class="container">
+                <h2>30-Day Health Challenge</h2>
+                <div class="challenge-container">
+                    <h3>Progress</h3>
+                    <div class="challenge-progress">
+                        <div class="progress-bar" id="challengeProgressBar"></div>
+                    </div>
+                    <p>Complete daily tasks to improve your health score!</p>
+                    <div class="challenge-actions">
+                        <button class="cta-button" onclick="startChallenge()">Start Challenge</button>
+                        <button class="cta-button" onclick="completeTask()">Complete Task</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="logo">HealthTwin</div>
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Contact Us</a>
+                </div>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            const preloader = document.querySelector('.preloader');
+            preloader.style.display = 'none';
+        });
+
+        // Scroll-based header animation
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // 3D Model Demo
+        const demoCanvas = document.getElementById('demoCanvas');
+        const demoScene = new THREE.Scene();
+        const demoCamera = new THREE.PerspectiveCamera(75, demoCanvas.clientWidth / demoCanvas.clientHeight, 0.1, 1000);
+        const demoRenderer = new THREE.WebGLRenderer({ canvas: demoCanvas, alpha: true });
+        demoRenderer.setSize(demoCanvas.clientWidth, demoCanvas.clientHeight);
+
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ffaa, wireframe: true });
+        const sphere = new THREE.Mesh(geometry, material);
+        demoScene.add(sphere);
+
+        demoCamera.position.z = 5;
+
+        function animateDemo() {
+            requestAnimationFrame(animateDemo);
+            sphere.rotation.x += 0.01;
+            sphere.rotation.y += 0.01;
+            demoRenderer.render(demoScene, demoCamera);
+        }
+        animateDemo();
+
+        // Animated Statistics
+        function animateValue(id, start, end, duration) {
+            const range = end - start;
+            let current = start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / range));
+            const obj = document.getElementById(id);
+            const timer = setInterval(() => {
+                current += increment;
+                obj.innerHTML = current;
+                if (current == end) {
+                    clearInterval(timer);
+                }
+            }, stepTime);
+        }
+
+        animateValue("usersCount", 0, 100000, 3000);
+        animateValue("healthImprovementPercentage", 0, 85, 3000);
+        animateValue("accuracyPercentage", 0, 95, 3000);
+        animateValue("dataPointsCount", 0, 1000000, 3000);
+
+        // AI Chatbot
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const chatMessages = document.getElementById('chatMessages');
+            const message = userInput.value;
+            
+            if (message.trim() !== '') {
+                chatMessages.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+                userInput.value = '';
+                
+                // Simulate AI response (replace with actual AI integration)
+                setTimeout(() => {
+                    chatMessages.innerHTML += `<p><strong>HealthTwin AI:</strong> Thank you for your question. I'm analyzing your health data to provide a personalized response.</p>`;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+        }
+
+        // Health Challenge
+        let challengeProgress = 0;
+        const progressBar = document.getElementById('challengeProgressBar');
+
+        function startChallenge() {
+            challengeProgress = 0;
+            updateProgressBar();
+            alert('30-Day Health Challenge started! Complete daily tasks to improve your health score.');
+        }
+
+        function completeTask() {
+            if (challengeProgress < 100) {
+                challengeProgress += 3.33; // Increase by approximately 1/30th
+                updateProgressBar();
+                if (challengeProgress >= 100) {
+                    alert('Congratulations! Youve completed the 30-Day Health Challenge!');
+                }
+            }
+        }
+
+        function updateProgressBar() {
+            progressBar.style.width = `${challengeProgress}%`;
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.from('.feature-card', {
+            opacity: 0,
+            y: 50,
+            duration: 0.8,
+            stagger: 0.2,
+            scrollTrigger: {
+                trigger: '.features',
+                start: 'top 80%'
+            }
+        });
+
+        gsap.from('.statistic-card', {
+            opacity: 0,
+            scale: 0.8,
+            duration: 0.8,
+            stagger: 0.2,
+            scrollTrigger: {
+                trigger: '.statistics',
+                start: 'top 80%'
+            }
+        });
+
+        gsap.from('.timeline-item', {
+            opacity: 0,
+            x: -50,
+            duration: 0.8,
+            stagger: 0.2,
+            scrollTrigger: {
+                trigger: '.health-timeline',
+                start: 'top 80%'
+            }
+        });
+
+        // Parallax effect for hero section
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth - 0.5;
+            const mouseY = e.clientY / window.innerHeight - 0.5;
+
+            gsap.to('.hero-content', {
+                duration: 0.5,
+                x: mouseX * 50,
+                y: mouseY * 50,
+                ease: 'power2.out'
+            });
+        });
+    </script>
+</body>
+</html>
